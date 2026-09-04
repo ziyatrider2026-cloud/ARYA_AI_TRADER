@@ -47,3 +47,10 @@ Service-role credentials are server-only. Browser/client code must use authentic
 **Status:** accepted
 
 Portfolio backtests build a timestamp-indexed view across symbols, expose only candles available at the strategy timestamp, and execute an order only when the next timestamp contains an execution candle for that symbol. Equity is marked with each symbol's own close rather than a shared price. This preserves deterministic next-bar semantics while allowing asynchronous/missing symbol bars to be handled explicitly.
+
+## ADR-009 — Iran collector composes independent source streams
+**Status:** accepted
+
+`IranMarketCollector` is the application ingestion boundary for Iranian market data. It composes a canonical market-data provider with optional disclosure/event providers such as Codal and observer messages. Price data and disclosures remain independently attributable and failures are preserved as provenance/reason metadata.
+
+An unavailable optional disclosure stream must not turn valid price data into synthetic data or hide the failure. Conversely, if all required market-price inputs are unavailable, the collector returns `UNAVAILABLE`. This keeps the AI/scanner layers deterministic and prevents upstream instability from leaking into UI code.
