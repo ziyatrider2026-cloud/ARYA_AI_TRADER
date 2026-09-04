@@ -26,11 +26,11 @@ export class PaperSimulator {
     if (!Number.isFinite(order.quantity) || order.quantity <= 0) return { orderId: order.id, status: "rejected", filledQuantity: 0, message: "quantity must be positive", executedAt: candle.t };
     const price = order.entry !== undefined ? order.entry : executionPrice(order.side, candle, this.costs); if (!Number.isFinite(price) || price <= 0) return { orderId: order.id, status: "rejected", filledQuantity: 0, message: "invalid execution price", executedAt: candle.t };
     const fee = price * order.quantity * this.costs.feeRate; const position = this.state.positions.find((p) => p.symbol === order.symbol); const signed = order.side === "long" ? order.quantity : -order.quantity; let realizedPnl = -fee;
-    if (!position) this.state.positions.push({ symbol: order.symbol, side: order.side, quantity: order.quantity, averageEntry: price, realizedPnl: 0, feesPaid: fee });
+    if (!position) { this.state.positions.push({ symbol: order.symbol, side: order.side, quantity: order.quantity, averageEntry: price, realizedPnl: -fee, feesPaid: fee }); this.state.realizedPnl -= fee; }
     else if (position.side === order.side) { const total = position.quantity + order.quantity; position.averageEntry = (position.averageEntry * position.quantity + price * order.quantity) / total; position.quantity = total; position.feesPaid += fee; }
     else {
       const closing = Math.min(position.quantity, order.quantity); const pnlPerUnit = position.side === "long" ? price - position.averageEntry : position.averageEntry - price; realizedPnl += pnlPerUnit * closing; position.realizedPnl += pnlPerUnit * closing; this.state.realizedPnl += pnlPerUnit * closing; position.feesPaid += fee; position.quantity -= closing;
-      if (position.quantity === 0) { const remaining = order.quantity - closing; this.state.positions.splice(this.state.positions.indexOf(position), 1); if (remaining > 0) this.state.positions.push({ symbol: order.symbol, side: order.side, quantity: remaining, averageEntry: price, realizedPnl: 0, feesPaid: 0 }); }
+      if (position.quantity === 0) { const remaining = order.quantity - closing; this.state.positions.splice(this.state.positions.indexOf(position), 1); if (remaining > 0) this.state.positions.push({ symbol: order.symbol, side: order.side, quantity: remaining, averageEntry: price, realizedPnl: -fee, feesPaid: 0 }); }
     }
     this.state.cash -= signed * price; this.state.cash -= fee; this.state.feesPaid += fee;
     return { orderId: order.id, symbol: order.symbol, side: order.side, quantity: order.quantity, price, fee, realizedPnl, timestamp: candle.t };
