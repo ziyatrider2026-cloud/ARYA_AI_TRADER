@@ -13,10 +13,12 @@ Status: complete
 Status: in progress
 - [x] Provider adapter boundary
 - [x] Public Binance crypto OHLCV/quote adapter
+- [x] Read-only TSETMC Iran-equity adapter
 - [x] Candle normalization
 - [x] Gap/duplicate/incomplete-series checks
 - [x] Provider timeout/retry boundary
-- [ ] TSETMC production adapter after endpoint contract verification
+- [ ] Production Iran collector/relay with Iranian network placement
+- [ ] Direct Codal disclosure adapter after current contract verification
 - [ ] Historical cache
 
 ## M3 — Persistence and audit
@@ -30,21 +32,26 @@ Status: in progress
 - [ ] Durable database implementation
 
 ## M4 — AI decision service
-Status: planned
-- Provider abstraction
-- Structured JSON output
-- Zod validation
-- Model metadata
-- Confidence calibration
-- Prompt/version registry
+Status: in progress
+- [x] Provider abstraction
+- [x] Structured JSON output
+- [x] Zod validation
+- [x] Model metadata
+- [x] Gateway confidence threshold
+- [ ] Confidence calibration
+- [ ] Prompt/version registry
+- [ ] Production model adapter
 
 ## M5 — Backtest and paper trading
-Status: planned
-- Fill simulator
-- Slippage/fees/spread
-- Position accounting
-- Metrics
-- Replayable scenarios
+Status: in progress
+- [x] Deterministic fill simulator
+- [x] Slippage/fees/spread
+- [x] Long/short position accounting
+- [x] Replayable next-bar backtest
+- [x] Equity and drawdown metrics
+- [ ] Stop-loss/take-profit event simulation
+- [ ] Multi-symbol portfolio replay
+- [ ] Full fee/tax/market-rule profiles for Iran
 
 ## M6 — Portfolio and monitoring
 Status: planned
