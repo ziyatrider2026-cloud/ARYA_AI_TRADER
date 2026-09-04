@@ -1,14 +1,20 @@
-import type { MarketSnapshot } from "./types";
+import type { DataEnvelope } from "./data-envelope";
+import type { Candle, Timeframe } from "./types";
 import type { MarketDataProvider } from "./market-data";
 
+/** Application service over the canonical provider boundary. */
 export function createMarketDataService(provider: MarketDataProvider) {
   return {
-    async snapshot(symbol: string, timeframe: string, limit = 500): Promise<MarketSnapshot> {
-      const result = await provider.getSnapshot(symbol, timeframe, limit);
-      if (!result || result.candles.length === 0) {
-        throw new Error(`No market data returned for ${symbol} ${timeframe}`);
-      }
-      return result;
+    async candles(symbolId: string, timeframe: Timeframe, limit = 500): Promise<DataEnvelope<Candle[]>> {
+      return provider.getOhlcv({ symbolId, timeframe, limit });
+    },
+
+    async quote(symbolId: string) {
+      return provider.getQuote(symbolId);
+    },
+
+    async health() {
+      return provider.health();
     },
   };
 }
