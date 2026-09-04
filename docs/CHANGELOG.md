@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-04 — M3 foundation started
+
+### Added
+- Append-only audit-store contract with an in-memory implementation.
+- Decision pipeline boundary connecting market provenance, proposal evaluation and deterministic risk.
+- Automated decision-pipeline audit test.
+
+### Hardened
+- Executable proposals now require positive entry and stop-loss values.
+- Long/short stop-loss direction is validated.
+- Risk sizing is capped by configured maximum leverage.
+- Risk decisions deduplicate rejection reasons and report calculated maximum loss.
+
 ## 2026-09-04 — M2 Market Data Foundation
 
 ### Added
