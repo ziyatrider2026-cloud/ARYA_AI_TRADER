@@ -49,12 +49,11 @@ function createPersistence(): PersistenceRepository {
 
 function resolveSymbolId(
   symbols: Array<{ id: string; ticker: string; name: string }>,
-  request: MarketDataReadRequest,
+  target?: string,
 ): string | undefined {
-  if (request.symbolId?.trim()) return request.symbolId.trim();
-  const target = request.ticker?.trim() || process.env.ARYA_DEFAULT_IRAN_TICKER?.trim();
   if (!target) return undefined;
-  const normalized = target.toLocaleLowerCase("fa-IR");
+  const normalized = target.trim().toLocaleLowerCase("fa-IR");
+  if (!normalized) return undefined;
   const match = symbols.find(
     (symbol) => symbol.ticker.toLocaleLowerCase("fa-IR") === normalized || symbol.name.toLocaleLowerCase("fa-IR").includes(normalized),
   );
@@ -72,16 +71,17 @@ export async function readMarketCandles(request: MarketDataReadRequest): Promise
   const persistence = createPersistence();
 
   let symbolId = request.symbolId?.trim();
-  if (!symbolId && request.ticker?.trim()) {
+  const configuredTicker = request.ticker?.trim() || process.env.ARYA_DEFAULT_IRAN_TICKER?.trim();
+  if (!symbolId && configuredTicker) {
     const symbols = await provider.listSymbols("iran-equity");
-    symbolId = resolveSymbolId(symbols.data, request);
-  }
-  if (!symbolId) {
-    symbolId = resolveSymbolId([], request);
+    symbolId = resolveSymbolId(symbols.data, configuredTicker);
+    if (!symbolId && symbols.meta.status === "UNAVAILABLE") {
+      return unavailable([], symbols.meta.source, symbols.meta.providerId, symbols.meta.reason ?? "Unable to resolve Iran ticker because symbol catalog is unavailable");
+    }
   }
 
   if (!symbolId) {
-    return unavailable([], "ARYA Market Data Gateway", "market-data-gateway", "No symbolId/ticker configured; set ARYA_DEFAULT_IRAN_TICKER or provide a symbolId");
+    return unavailable([], "ARYA Market Data Gateway", "market-data-gateway", "No symbolId/ticker configured; provide symbolId or ARYA_DEFAULT_IRAN_TICKER");
   }
 
   const live = await provider.getOhlcv({ symbolId, timeframe: request.timeframe, limit });
