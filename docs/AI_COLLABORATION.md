@@ -15,6 +15,8 @@ This project is intentionally developed with multiple AI collaborators, includin
 9. Do not call undocumented Iranian market endpoints directly from UI components. Use provider adapters and, for production, prefer an Iran-network collector/relay.
 10. Do not interpret TSETMC/Codal availability as guaranteed. Always surface provider status and freshness.
 11. Backtest strategies must never receive the execution candle; protective exits must use only OHLC data from the current execution bar.
+12. Supabase service-role credentials are server-only. Never place `SUPABASE_SERVICE_ROLE_KEY` in `VITE_*` variables or browser code.
+13. Durable persistence must implement `PersistenceRepository`; UI components must not depend directly on vendor-specific database APIs.
 
 ## Handoff format
 Every AI handoff should state:
@@ -30,8 +32,10 @@ Every AI handoff should state:
 `market adapters → normalization/validation → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
 
 ## Current handoff — 2026-09-04
-- **Changed:** Iran source taxonomy and relay boundary; protective stop-loss/take-profit event simulation in backtests.
+- **Changed:** added deterministic multi-symbol portfolio replay and a server-only Supabase/PostgREST persistence adapter with migration schema and tests.
+- **Persistence:** `PersistenceRepository` remains the vendor-neutral contract. Supabase is an adapter, not a domain dependency. The migration covers candles, analysis snapshots, proposals and append-only audit events.
+- **Security:** service-role credentials must remain server-side; browser code must use authenticated, least-privilege read paths after RLS policies are defined.
 - **Iran data:** TSETMC CDN is an adapter target for public price/history data; TSE Web Gateway is the preferred target for richer market-watch/order-book data when an Iran-network relay is available; Codal and observer messages remain separate disclosure/event streams.
 - **Production recommendation:** deploy an Iran-side collector/relay that polls upstream sources responsibly, validates/normalizes them, persists them, and exposes ARYA-safe application APIs.
 - **Do not merge:** this work is on the feature branch and must remain unmerged until review/CI approval.
-- **Next task:** multi-symbol portfolio replay, durable persistence schema, verified Codal adapter, and Iran-specific fee/tax/market-rule profiles.
+- **Next task:** verify the database migration/RLS in a real project, add historical cache wiring, implement a verified Codal disclosure adapter, and define Iran-specific fee/tax/market-rule profiles.
