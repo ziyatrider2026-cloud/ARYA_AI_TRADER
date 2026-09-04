@@ -1,6 +1,6 @@
 /** Iran market-data ingestion contracts. No network calls live in this module. */
 import type { DataEnvelope } from "./data-envelope";
-import type { Candle, Symbol } from "./types";
+import type { Candle, Symbol, Timeframe } from "./types";
 
 export type IranSourceId = "tsetmc-cdn" | "tse-webgw" | "codal" | "observer" | "macro";
 
@@ -19,14 +19,34 @@ export interface IranCollectorConfig {
   iranRelayBaseUrl?: string;
 }
 
+export interface IranDisclosure {
+  id: string;
+  symbol?: string;
+  title: string;
+  publishedAt: number;
+  url?: string;
+  sourceId: "codal" | "observer";
+}
+
 export interface IranSnapshot {
   symbols: Symbol[];
   candles: Candle[];
-  disclosures: Array<{ id: string; symbol?: string; title: string; publishedAt: number; url?: string }>;
+  disclosures: IranDisclosure[];
+}
+
+export interface IranCollectRequest {
+  symbolId?: string;
+  timeframe?: Timeframe;
+  limit?: number;
 }
 
 export interface IranCollector {
-  collect(symbolId?: string): Promise<DataEnvelope<IranSnapshot>>;
+  collect(request?: IranCollectRequest | string): Promise<DataEnvelope<IranSnapshot>>;
+}
+
+export interface IranDisclosureProvider {
+  readonly sourceId: "codal" | "observer";
+  listDisclosures(symbolId?: string, limit?: number): Promise<DataEnvelope<IranDisclosure[]>>;
 }
 
 export const IRAN_SOURCE_CATALOG: readonly IranMarketSource[] = [
