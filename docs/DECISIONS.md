@@ -54,3 +54,10 @@ Portfolio backtests build a timestamp-indexed view across symbols, expose only c
 `IranMarketCollector` is the application ingestion boundary for Iranian market data. It composes a canonical market-data provider with optional disclosure/event providers such as Codal and observer messages. Price data and disclosures remain independently attributable and failures are preserved as provenance/reason metadata.
 
 An unavailable optional disclosure stream must not turn valid price data into synthetic data or hide the failure. Conversely, if all required market-price inputs are unavailable, the collector returns `UNAVAILABLE`. This keeps the AI/scanner layers deterministic and prevents upstream instability from leaking into UI code.
+
+## ADR-010 — Server-first application market-data boundary
+**Status:** accepted
+
+The browser must not call TSETMC, TSE Web Gateway, Codal or the Iran relay upstream directly. TanStack Start server functions provide the same-origin application boundary; server-only modules resolve the configured provider, persist successful candles and expose only canonical `DataEnvelope` values to the UI.
+
+When live retrieval fails, the gateway may read persisted historical candles, but the result is explicitly `STALE` and retains the latest persisted `receivedAt` timestamp. No mock or synthetic fallback is allowed. This makes the chart and future scanner consumers honest about freshness while still allowing the application to remain useful during upstream outages.
