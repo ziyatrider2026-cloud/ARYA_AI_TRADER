@@ -12,8 +12,9 @@ const policy: RiskPolicy = {
   maxLeverage: 2,
 };
 
+const candle = { t: 1_700_000_000_000, open: 100, high: 102, low: 99, close: 101, volume: 10 };
 const market: DataEnvelope<MarketSnapshot> = {
-  data: { symbolId: "crypto:BTCUSDT", timeframe: "1h", candles: [], quality: { status: "ok", source: "test", receivedAt: Date.now(), warnings: [] } },
+  data: { symbol: "BTCUSDT", timeframe: "1h", candles: [candle], quality: { status: "ok", source: "test", receivedAt: Date.now(), warnings: [] } },
   meta: { source: "test", providerId: "test", status: "LIVE", timestamp: Date.now(), quality: 1 },
 };
 
@@ -29,5 +30,12 @@ describe("evaluateDecision", () => {
     expect(result.approved).toBe(true);
     expect(result.positionSize).toBeGreaterThan(0);
     expect(await audit.list("p-1")).toHaveLength(1);
+  });
+
+  it("rejects demo/degraded market data even when risk math passes", async () => {
+    const degraded = { ...market, meta: { ...market.meta, status: "DEMO" as const, quality: 0.5 } };
+    const result = await evaluateDecision({ market: degraded, proposal, accountEquity: 10_000, currentExposure: 0, dailyLoss: 0, riskPolicy: policy });
+    expect(result.approved).toBe(false);
+    expect(result.reasons).toContain("market data is demo");
   });
 });
