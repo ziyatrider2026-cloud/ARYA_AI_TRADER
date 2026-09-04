@@ -11,11 +11,15 @@
 - **Execution**: broker/exchange adapter selected by mode: backtest, paper, live.
 - **Portfolio**: positions, balances, exposure and P&L.
 - **Audit**: append-only decision and execution events.
+- **Persistence**: repository interfaces store market candles, analysis snapshots, proposals and audit events without coupling domain logic to a database vendor.
 
 ## Safety boundary
 The only path to an order is:
 `TradeProposal -> RiskDecision(approved) -> OrderIntent -> ExecutionAdapter`.
 There is no direct `AI -> broker` path.
+
+## AI gateway boundary
+AI providers return untrusted structured output. The gateway validates it with Zod before exposing a `TradeProposal` to the rest of the system. Invalid provider output becomes an explicit `UNAVAILABLE` envelope. Model name and prompt version are part of the request metadata. A gateway confidence threshold may downgrade quality but never bypasses deterministic risk controls.
 
 ## Runtime modes
 - `backtest`: historical simulation only.
@@ -27,3 +31,6 @@ Existing `src/arya` indicator/provider/smart-money code remains the source of tr
 
 ## Data integrity
 Every market snapshot should identify provider, received time, source time when available, symbol, timeframe and quality. Missing or stale data must produce an explicit error/quality state, never fabricated values.
+
+## Persistence strategy
+Domain code depends on repository interfaces, not a specific database. The in-memory repository is the deterministic test/local implementation. A durable adapter will be introduced only after the deployment/runtime database choice is confirmed; it must preserve append-only audit semantics and idempotent candle storage.
