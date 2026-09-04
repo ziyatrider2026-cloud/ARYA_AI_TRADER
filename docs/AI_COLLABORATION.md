@@ -14,6 +14,7 @@ This project is intentionally developed with multiple AI collaborators, includin
 8. Prefer small, reviewable commits/PRs over large opaque rewrites.
 9. Do not call undocumented Iranian market endpoints directly from UI components. Use provider adapters and, for production, prefer an Iran-network collector/relay.
 10. Do not interpret TSETMC/Codal availability as guaranteed. Always surface provider status and freshness.
+11. Backtest strategies must never receive the execution candle; protective exits must use only OHLC data from the current execution bar.
 
 ## Handoff format
 Every AI handoff should state:
@@ -29,8 +30,8 @@ Every AI handoff should state:
 `market adapters → normalization/validation → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
 
 ## Current handoff — 2026-09-04
-- **Changed:** deterministic paper simulator, position accounting, replayable next-bar backtest, and read-only TSETMC adapter.
-- **Iran data:** TSETMC public JSON is now an adapter target; Codal remains a separate disclosure boundary pending contract verification.
+- **Changed:** Iran source taxonomy and relay boundary; protective stop-loss/take-profit event simulation in backtests.
+- **Iran data:** TSETMC CDN is an adapter target for public price/history data; TSE Web Gateway is the preferred target for richer market-watch/order-book data when an Iran-network relay is available; Codal and observer messages remain separate disclosure/event streams.
 - **Production recommendation:** deploy an Iran-side collector/relay that polls upstream sources responsibly, validates/normalizes them, persists them, and exposes ARYA-safe application APIs.
 - **Do not merge:** this work is on the feature branch and must remain unmerged until review/CI approval.
-- **Next task:** stop-loss/take-profit event simulation, multi-symbol backtest accounting, durable persistence schema, and a verified Codal disclosure adapter.
+- **Next task:** multi-symbol portfolio replay, durable persistence schema, verified Codal adapter, and Iran-specific fee/tax/market-rule profiles.
