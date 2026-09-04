@@ -26,6 +26,14 @@ AI providers return untrusted structured output. The gateway validates it with Z
 - `paper`: simulated execution using live or historical data.
 - `live`: disabled by default and requires explicit configuration plus operational approval.
 
+## Iran market-data architecture
+Iranian market connectivity is split into source-specific adapters and a deployable relay boundary. TSETMC CDN is useful for public symbol/history data, while the TSE web gateway is the preferred surface for market-watch/order-book data when network access permits. Codal and observer messages remain separate disclosure/event streams. Public reverse-engineered endpoints are treated as unstable integrations and are monitored with health checks, timeouts, retries and schema validation.
+
+Recommended production topology:
+`TSETMC/Codal/TSE Gateway -> Iran Relay Collector -> Normalization/Validation -> Durable Store -> ARYA API -> UI/AI`
+
+The Iran relay is read-only. It contains no broker credentials and has no order-submission capability. Keeping the relay in an Iranian network location also avoids making the browser responsible for cross-origin, geo-restricted or unstable upstream access.
+
 ## Migration strategy
 Existing `src/arya` indicator/provider/smart-money code remains the source of truth for current deterministic analytics. New domain contracts live under `src/arya/core` and are intentionally adapter-oriented so the UI can migrate incrementally without a rewrite.
 
