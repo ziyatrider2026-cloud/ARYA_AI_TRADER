@@ -13,7 +13,7 @@
 - When stop and target are both touched in one OHLC bar, the simulator chooses stop first as a conservative deterministic rule.
 
 ### Research finding
-- Community-maintained endpoint documentation identifies `cdn.tsetmc.com` as a public JSON surface keyed by `InsCode`, while `webgw.tse.ir` exposes a more complete market-watch/live-instrument surface keyed by ISIN and may require an Iranian network location. These endpoints are treated as integration targets, not SLA-backed guarantees. citeturn0search0
+- Community-maintained endpoint documentation identifies `cdn.tsetmc.com` as a public JSON surface keyed by `InsCode`, while `webgw.tse.ir` exposes a more complete market-watch/live-instrument surface keyed by ISIN and may require an Iranian network location. These endpoints are treated as integration targets, not SLA-backed guarantees.
 - Codal disclosures should remain a separate event stream. Until the current public contract and deployment accessibility are verified, ARYA will not invent a production Codal API.
 
 ### Handoff
