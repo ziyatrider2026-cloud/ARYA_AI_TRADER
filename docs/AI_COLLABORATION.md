@@ -19,6 +19,8 @@ This project is intentionally developed with multiple AI collaborators, includin
 13. Durable persistence must implement `PersistenceRepository`; UI components must not depend directly on vendor-specific database APIs.
 14. Iran disclosure streams are optional inputs to the market collector. Their failure must degrade provenance/quality, never fabricate market prices and never hide the failure.
 15. Do not create a production Codal adapter until its current public contract and deployment accessibility have been verified. Until then use the `IranDisclosureProvider` contract.
+16. Server-only market access belongs behind `src/arya/server/*.server.ts` and typed `*.functions.ts` boundaries. Client components may call the server function, but must never import server-only persistence/provider implementations directly.
+17. Historical-cache fallback is allowed only when live data fails and must be marked `STALE`; cached candles must never be presented as `LIVE`.
 
 ## Handoff format
 Every AI handoff should state:
@@ -31,14 +33,15 @@ Every AI handoff should state:
 - Recommended next task
 
 ## Current implementation sequence
-`market adapters → normalization/validation → Iran collector → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
+`market adapters → normalization/validation → Iran collector → server market gateway/cache → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
 
 ## Current handoff — 2026-09-04
-- **Changed:** added `IranCollectRequest`, `IranDisclosureProvider`, and a canonical `IranMarketCollector` composition layer.
-- **Collector behavior:** market data is collected through the existing provider boundary; optional Codal/observer providers are composed separately. A disclosure failure does not replace or fabricate prices. The resulting envelope remains `LIVE` with reduced quality/reason metadata when appropriate.
-- **TSETMC:** the existing read-only TSETMC adapter remains the current public price/history source. The Iran relay remains the production deployment boundary for network-sensitive sources.
-- **Codal:** no undocumented direct endpoint was invented. The production adapter remains blocked pending contract verification; the collector accepts a verified adapter later without changing downstream contracts.
-- **Persistence:** `PersistenceRepository` remains vendor-neutral; Supabase is an adapter. Historical cache wiring is still pending.
-- **Security:** service-role credentials must remain server-side; browser code must use authenticated, least-privilege read paths after RLS policies are defined.
+- **Changed:** added a server-only `readMarketCandles` gateway and typed `getMarketCandles` server function. Chart route now obtains its initial candles through this boundary instead of `generateSeries` mock data.
+- **Cache behavior:** live provider data is persisted through `PersistenceRepository`; if live retrieval fails, only persisted candles may be returned and they are explicitly marked `STALE`. There is no synthetic fallback.
+- **Symbol resolution:** the gateway accepts a canonical `symbolId` or resolves a ticker such as `شپنا` through the real provider symbol catalog. `ARYA_DEFAULT_IRAN_TICKER` can define the server default.
+- **TSETMC/Relay:** if `IRAN_RELAY_BASE_URL` is configured, the server gateway uses the read-only Iran relay; otherwise it uses the server-side TSETMC adapter. Browser code never calls the upstream directly.
+- **Chart:** daily data is loaded by the route loader; switching timeframe invokes the same server function. Unsupported intraday history therefore shows an explicit unavailable state instead of fabricated candles.
+- **Codal:** no undocumented direct endpoint was invented. The production adapter remains blocked pending contract verification.
+- **Security:** service-role credentials remain server-side. Server functions are the application boundary; private database/provider modules must not be imported into client bundles.
 - **Do not merge:** this work is on the feature branch and must remain unmerged until review/CI approval.
-- **Next task:** verify collector tests/CI, wire historical cache, verify the Supabase migration/RLS in a real project, then implement the first verified Codal/observer adapters.
+- **Next task:** add scheduled ingestion, verify Supabase migration/RLS in a real project, then connect Scanner and Watchlist to the same server market gateway.
