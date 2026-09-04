@@ -1,20 +1,23 @@
 # ARYA AI TRADER — Implementation Milestones
 
 ## M1 — Core contracts and safety boundary
-Status: in progress
+Status: complete
 - Domain types
 - Provider boundaries
 - Risk gate
 - Paper execution boundary
 - AI collaboration protocol
+- Deterministic unit-test entry point
 
 ## M2 — Real market data
-Status: next
-- Provider adapters
-- Candle normalization
-- Rate limiting/retry
-- Data quality checks
-- Historical cache
+Status: in progress
+- [x] Provider adapter boundary
+- [x] Public Binance crypto OHLCV/quote adapter
+- [x] Candle normalization
+- [x] Gap/duplicate/incomplete-series checks
+- [x] Provider timeout/retry boundary
+- [ ] TSETMC production adapter after endpoint contract verification
+- [ ] Historical cache
 
 ## M3 — Persistence and audit
 Status: planned
