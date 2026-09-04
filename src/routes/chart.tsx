@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LineChart } from "lucide-react";
 
 import { AppShell } from "@/components/arya/AppShell";
 import { ChartPanel } from "@/components/arya/ChartPanel";
+import { getMarketCandles } from "@/arya/server/market-data.functions";
 
 const title = "تحلیل نمودار | آریا";
 const description = "نمودار کندلی چندتایم‌فریمی با اندیکاتورهای قابل تنظیم برای بورس، ارز دیجیتال و فارکس.";
@@ -18,13 +18,15 @@ export const Route = createFileRoute("/chart")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: () => getMarketCandles({ data: { ticker: "شپنا", timeframe: "1D", limit: 120 } }),
   component: ChartPage,
 });
 
 function ChartPage() {
+  const marketData = Route.useLoaderData();
   return (
     <AppShell>
-      <ChartPanel />
+      <ChartPanel initialData={marketData} />
     </AppShell>
   );
 }
