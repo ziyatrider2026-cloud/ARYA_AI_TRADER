@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-09-04 — Iran relay and protective backtest exits
+
+### Added
+- `IranMarketSource` catalog separating TSETMC CDN, TSE Web Gateway, Codal, observer messages and macro/reference sources.
+- `IranRelayProvider` contract for a read-only server-side relay, suitable for deployment on an Iran-network host.
+- Protective stop-loss/take-profit event simulation in the deterministic backtest engine.
+
+### Safety
+- The Iran relay has no order-submission capability or broker credentials.
+- UI code must not call geo-restricted/unstable Iranian upstreams directly.
+- When stop and target are both touched in one OHLC bar, the simulator chooses stop first as a conservative deterministic rule.
+
+### Research finding
+- Community-maintained endpoint documentation identifies `cdn.tsetmc.com` as a public JSON surface keyed by `InsCode`, while `webgw.tse.ir` exposes a more complete market-watch/live-instrument surface keyed by ISIN and may require an Iranian network location. These endpoints are treated as integration targets, not SLA-backed guarantees. citeturn0search0
+- Codal disclosures should remain a separate event stream. Until the current public contract and deployment accessibility are verified, ARYA will not invent a production Codal API.
+
+### Handoff
+Lovable and Claude: use the provider/relay contracts rather than direct browser calls; preserve provenance, freshness and `UNAVAILABLE` states. Do not merge this feature branch into `main` without review.
+
 ## 2026-09-04 — Paper/backtest and Iran market-data layer
 
 ### Added
@@ -15,13 +34,6 @@
 - Undocumented/geo-restricted upstream failures become `UNAVAILABLE`; they are never replaced by demo prices.
 - Backtests do not use future candles to create same-bar fills.
 - Live trading remains disabled.
-
-### Research finding
-- Current community-maintained TSETMC endpoint references identify `cdn.tsetmc.com` as a usable public JSON surface and `webgw.tse.ir` as a more complete official-site gateway, with geographic-access caveats. These are upstream integration targets, not guarantees of an SLA.
-- For Codal, the architecture now reserves a separate disclosure-provider boundary. A direct production Codal adapter is intentionally deferred until the current public contract and deployment accessibility are verified.
-
-### Handoff
-Lovable and Claude: do not bypass `TsetmcProvider`, the data-quality layer, or the paper/backtest execution boundary. For Iran data, prefer a server-side/iran-network collector feeding normalized data into ARYA rather than browser-direct calls.
 
 ## 2026-09-04 — M3 foundation started
 
@@ -50,12 +62,3 @@ Lovable and Claude: do not bypass `TsetmcProvider`, the data-quality layer, or t
 - Provider failures return explicit `UNAVAILABLE` envelopes instead of leaking exceptions to the UI.
 - Real market data remains provenance-tagged and is never converted into demo data.
 - Live order execution remains disabled.
-
-### Not yet enabled
-- Verified production TSETMC adapter.
-- Historical persistence/cache.
-- Production LLM gateway.
-- Broker/exchange order submission.
-
-### Handoff
-Lovable and Claude should read `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` and this changelog before modifying these contracts.
