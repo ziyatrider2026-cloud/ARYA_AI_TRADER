@@ -17,6 +17,7 @@ Status: in progress
 - [x] Candle normalization
 - [x] Gap/duplicate/incomplete-series checks
 - [x] Provider timeout/retry boundary
+- [x] Iran relay provider contract
 - [ ] Production Iran collector/relay with Iranian network placement
 - [ ] Direct Codal disclosure adapter after current contract verification
 - [ ] Historical cache
@@ -49,7 +50,7 @@ Status: in progress
 - [x] Long/short position accounting
 - [x] Replayable next-bar backtest
 - [x] Equity and drawdown metrics
-- [ ] Stop-loss/take-profit event simulation
+- [x] Stop-loss/take-profit event simulation
 - [ ] Multi-symbol portfolio replay
 - [ ] Full fee/tax/market-rule profiles for Iran
 
