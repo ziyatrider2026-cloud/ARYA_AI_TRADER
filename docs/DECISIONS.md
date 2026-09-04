@@ -35,3 +35,15 @@ For disclosures, ARYA will use a dedicated `DisclosureProvider` boundary rather 
 Recommended production topology: `Iran relay/collector -> normalization -> validation -> persistence -> application API`. This avoids depending on Iranian-IP availability from a browser or foreign cloud runtime and prevents the UI from calling undocumented upstream endpoints directly.
 
 Additional sources such as official exchange/index publications, Codal, and licensed/commercial data providers can be added behind the same provider interfaces. No source may silently replace a failed real source with demo data.
+
+## ADR-007 — Vendor-neutral durable persistence
+**Status:** accepted
+
+ARYA persistence is defined by `PersistenceRepository`. The first production-oriented adapter targets Supabase PostgREST because it provides PostgreSQL storage without coupling domain code to a database SDK. The migration stores normalized candles, analysis snapshots, proposals and audit events with provenance-oriented fields. A Neon/PostgreSQL adapter may be added later without changing the domain contract.
+
+Service-role credentials are server-only. Browser/client code must use authenticated least-privilege paths protected by RLS; the persistence adapter itself must never be imported into client bundles.
+
+## ADR-008 — Multi-symbol backtest uses synchronized portfolio replay
+**Status:** accepted
+
+Portfolio backtests build a timestamp-indexed view across symbols, expose only candles available at the strategy timestamp, and execute an order only when the next timestamp contains an execution candle for that symbol. Equity is marked with each symbol's own close rather than a shared price. This preserves deterministic next-bar semantics while allowing asynchronous/missing symbol bars to be handled explicitly.
