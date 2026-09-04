@@ -9,6 +9,7 @@ Updated: 2026-09-04
 - Public Binance read-only adapter.
 - Read-only TSETMC daily history/quote adapter.
 - Iran source catalog and read-only Iran relay contract.
+- Canonical Iran collector composition layer for price and optional disclosure streams.
 - Candle normalization and quality validation.
 - Deterministic risk gate with confidence, stop-loss and exposure checks.
 - AI proposal gateway with Zod validation.
@@ -19,6 +20,10 @@ Updated: 2026-09-04
 - Supabase/PostgREST server-side persistence adapter.
 - Supabase migration schema for candles, analyses, proposals and audit events.
 - Audit-store and decision-to-audit boundary.
+- TanStack Start server-only market-data gateway and typed server function.
+- Live-first historical cache fallback with explicit `STALE` provenance.
+- Chart route connected to the real market-data boundary; no synthetic chart fallback.
+- Automated CI workflow for test, lint and build.
 
 ## Not yet production-ready
 
@@ -26,7 +31,7 @@ Updated: 2026-09-04
 - Verified current Codal API/collector contract.
 - RLS/authenticated application read paths.
 - Durable database migration execution against a real project.
-- Historical cache wiring.
+- Scheduled ingestion worker and retention policy.
 - Iran-specific fee/tax/price-limit/minimum-order market rules.
 - Confidence calibration and production AI model adapter.
 - Full portfolio monitoring/kill switch.
@@ -41,3 +46,4 @@ Updated: 2026-09-04
 5. Do not call undocumented Iranian upstreams directly from browser UI.
 6. Preserve provider provenance, freshness and explicit unavailable states.
 7. Add tests and update `docs/CHANGELOG.md` for structural changes.
+8. Treat cached market data as `STALE`, never as `LIVE`.
