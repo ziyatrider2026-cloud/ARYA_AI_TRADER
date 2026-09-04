@@ -17,6 +17,8 @@ This project is intentionally developed with multiple AI collaborators, includin
 11. Backtest strategies must never receive the execution candle; protective exits must use only OHLC data from the current execution bar.
 12. Supabase service-role credentials are server-only. Never place `SUPABASE_SERVICE_ROLE_KEY` in `VITE_*` variables or browser code.
 13. Durable persistence must implement `PersistenceRepository`; UI components must not depend directly on vendor-specific database APIs.
+14. Iran disclosure streams are optional inputs to the market collector. Their failure must degrade provenance/quality, never fabricate market prices and never hide the failure.
+15. Do not create a production Codal adapter until its current public contract and deployment accessibility have been verified. Until then use the `IranDisclosureProvider` contract.
 
 ## Handoff format
 Every AI handoff should state:
@@ -29,13 +31,14 @@ Every AI handoff should state:
 - Recommended next task
 
 ## Current implementation sequence
-`market adapters → normalization/validation → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
+`market adapters → normalization/validation → Iran collector → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
 
 ## Current handoff — 2026-09-04
-- **Changed:** added deterministic multi-symbol portfolio replay and a server-only Supabase/PostgREST persistence adapter with migration schema and tests.
-- **Persistence:** `PersistenceRepository` remains the vendor-neutral contract. Supabase is an adapter, not a domain dependency. The migration covers candles, analysis snapshots, proposals and append-only audit events.
+- **Changed:** added `IranCollectRequest`, `IranDisclosureProvider`, and a canonical `IranMarketCollector` composition layer.
+- **Collector behavior:** market data is collected through the existing provider boundary; optional Codal/observer providers are composed separately. A disclosure failure does not replace or fabricate prices. The resulting envelope remains `LIVE` with reduced quality/reason metadata when appropriate.
+- **TSETMC:** the existing read-only TSETMC adapter remains the current public price/history source. The Iran relay remains the production deployment boundary for network-sensitive sources.
+- **Codal:** no undocumented direct endpoint was invented. The production adapter remains blocked pending contract verification; the collector accepts a verified adapter later without changing downstream contracts.
+- **Persistence:** `PersistenceRepository` remains vendor-neutral; Supabase is an adapter. Historical cache wiring is still pending.
 - **Security:** service-role credentials must remain server-side; browser code must use authenticated, least-privilege read paths after RLS policies are defined.
-- **Iran data:** TSETMC CDN is an adapter target for public price/history data; TSE Web Gateway is the preferred target for richer market-watch/order-book data when an Iran-network relay is available; Codal and observer messages remain separate disclosure/event streams.
-- **Production recommendation:** deploy an Iran-side collector/relay that polls upstream sources responsibly, validates/normalizes them, persists them, and exposes ARYA-safe application APIs.
 - **Do not merge:** this work is on the feature branch and must remain unmerged until review/CI approval.
-- **Next task:** verify the database migration/RLS in a real project, add historical cache wiring, implement a verified Codal disclosure adapter, and define Iran-specific fee/tax/market-rule profiles.
+- **Next task:** verify collector tests/CI, wire historical cache, verify the Supabase migration/RLS in a real project, then implement the first verified Codal/observer adapters.
