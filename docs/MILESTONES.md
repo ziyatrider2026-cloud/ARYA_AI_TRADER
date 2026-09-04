@@ -19,10 +19,12 @@ Status: in progress
 - [x] Provider timeout/retry boundary
 - [x] Iran relay provider contract
 - [x] Canonical Iran collector composition layer
+- [x] Server-only market-data gateway
+- [x] Historical-cache fallback with explicit STALE provenance
 - [ ] Production Iran collector/relay with Iranian network placement
 - [ ] Verified Codal disclosure adapter
 - [ ] Verified observer/message adapter
-- [ ] Historical cache
+- [ ] Scheduled historical ingestion worker
 
 ## M3 — Persistence and audit
 Status: in progress
@@ -33,6 +35,7 @@ Status: in progress
 - [x] Proposals repository path
 - [x] Append-only audit-store contract
 - [x] Decision-to-audit pipeline boundary
+- [x] Server market gateway persistence path
 - [ ] Authentication/RLS policies for application read paths
 - [ ] Durable database deployment and migration verification
 - [ ] Optional Neon/PostgreSQL adapter
