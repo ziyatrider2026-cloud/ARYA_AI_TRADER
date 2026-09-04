@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LineChart } from "lucide-react";
 
 import { AppShell } from "@/components/arya/AppShell";
 import { ChartPanel } from "@/components/arya/ChartPanel";
