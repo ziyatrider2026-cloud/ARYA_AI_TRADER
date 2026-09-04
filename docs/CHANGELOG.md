@@ -7,6 +7,7 @@
 - Server-only Supabase/PostgREST persistence adapter implementing the vendor-neutral `PersistenceRepository` contract.
 - Supabase migration schema for market candles, analysis snapshots, trade proposals and append-only audit events.
 - Adapter tests covering canonical candle writes and proposal field mapping.
+- `docs/IMPLEMENTATION_STATUS.md` as a concise handoff for Lovable and Claude.
 
 ### Safety
 - Supabase service-role credentials are server-only and must never use a `VITE_*` variable.
