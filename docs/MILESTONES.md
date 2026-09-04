@@ -20,12 +20,14 @@ Status: in progress
 - [ ] Historical cache
 
 ## M3 — Persistence and audit
-Status: planned
-- Database schema
-- Market-data storage
-- Analysis snapshots
-- Proposals/orders/executions
-- Append-only audit log
+Status: in progress
+- [ ] Database schema
+- [ ] Market-data storage
+- [ ] Analysis snapshots
+- [ ] Proposals/orders/executions
+- [x] Append-only audit-store contract
+- [x] Decision-to-audit pipeline boundary
+- [ ] Durable database implementation
 
 ## M4 — AI decision service
 Status: planned
