@@ -12,6 +12,8 @@ This project is intentionally developed with multiple AI collaborators, includin
 6. Preserve backward compatibility with existing UI contracts unless a migration is documented.
 7. Record significant architecture changes in `docs/DECISIONS.md` and implementation changes in `docs/CHANGELOG.md`.
 8. Prefer small, reviewable commits/PRs over large opaque rewrites.
+9. Do not call undocumented Iranian market endpoints directly from UI components. Use provider adapters and, for production, prefer an Iran-network collector/relay.
+10. Do not interpret TSETMC/Codal availability as guaranteed. Always surface provider status and freshness.
 
 ## Handoff format
 Every AI handoff should state:
@@ -23,7 +25,12 @@ Every AI handoff should state:
 - Known limitations
 - Recommended next task
 
-## Current milestone
-Trading-core foundations are being established first. The next implementation sequence is:
-
+## Current implementation sequence
 `market adapters → normalization/validation → persistence → AI gateway → paper simulation → backtest → scanner/news → portfolio/monitoring → live adapter (disabled)`
+
+## Current handoff — 2026-09-04
+- **Changed:** deterministic paper simulator, position accounting, replayable next-bar backtest, and read-only TSETMC adapter.
+- **Iran data:** TSETMC public JSON is now an adapter target; Codal remains a separate disclosure boundary pending contract verification.
+- **Production recommendation:** deploy an Iran-side collector/relay that polls upstream sources responsibly, validates/normalizes them, persists them, and exposes ARYA-safe application APIs.
+- **Do not merge:** this work is on the feature branch and must remain unmerged until review/CI approval.
+- **Next task:** stop-loss/take-profit event simulation, multi-symbol backtest accounting, durable persistence schema, and a verified Codal disclosure adapter.
