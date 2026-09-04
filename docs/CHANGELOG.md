@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-09-04 — Durable persistence and multi-symbol portfolio replay
+
+### Added
+- Deterministic multi-symbol portfolio backtest with synchronized timestamps and per-symbol closing marks.
+- Server-only Supabase/PostgREST persistence adapter implementing the vendor-neutral `PersistenceRepository` contract.
+- Supabase migration schema for market candles, analysis snapshots, trade proposals and append-only audit events.
+- Adapter tests covering canonical candle writes and proposal field mapping.
+
+### Safety
+- Supabase service-role credentials are server-only and must never use a `VITE_*` variable.
+- Persistence remains behind `PersistenceRepository`; UI code must not depend directly on database vendors.
+- Portfolio replay executes orders only when the next timestamp contains a candle for that symbol.
+- Live trading remains disabled.
+
 ## 2026-09-04 — Iran relay and protective backtest exits
 
 ### Added
