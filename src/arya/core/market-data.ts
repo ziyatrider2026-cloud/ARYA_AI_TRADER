@@ -1,11 +1,8 @@
-import type { MarketSnapshot } from "./types";
-
-export interface MarketDataProvider {
-  readonly name: string;
-  getSnapshot(symbol: string, timeframe: string, limit?: number): Promise<MarketSnapshot>;
-}
-
-export interface MarketDataRegistry {
-  register(provider: MarketDataProvider): void;
-  get(name: string): MarketDataProvider | undefined;
-}
+/**
+ * Compatibility exports for the canonical provider contract.
+ *
+ * Provider implementations live under `src/arya/providers`; this module must
+ * not define a second, incompatible market-data interface.
+ */
+export type { MarketDataProvider } from "@/arya/providers/base";
+export type { ProviderInfo, OhlcvRequest, QuoteSnapshot } from "@/arya/providers/base";
