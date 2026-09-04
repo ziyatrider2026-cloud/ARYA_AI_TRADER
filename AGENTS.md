@@ -11,6 +11,11 @@ This repository is a shared workspace for Lovable, Claude, and other engineering
 5. Every architecture-impacting change must update `docs/CHANGELOG.md` and, when applicable, `docs/DECISIONS.md`.
 6. Mock providers remain available for tests; production code must not silently fall back from live data to mock data.
 7. Provider data must carry source, timestamp, symbol, timeframe, and quality/provenance metadata.
+8. Browser components must never call undocumented/geo-sensitive Iranian upstreams directly.
+9. Server-only modules under `src/arya/server/*.server.ts` may access environment secrets and persistence adapters; client modules must not import them directly.
+10. Historical cache fallback is permitted only as `STALE` data with its original received timestamp; it must never be relabeled `LIVE`.
+11. TanStack Start server functions are the preferred same-origin application boundary for market-data reads. Use server routes only when an externally callable HTTP API is intentionally required.
+12. Any unsupported market timeframe or unavailable provider must surface an explicit unavailable state; never synthesize candles to keep the chart populated.
 
 ## Agent handoff
 Before editing:
@@ -26,4 +31,4 @@ After editing:
 - clearly mark unfinished integrations as TODOs rather than simulating production behavior.
 
 ## Current implementation phase
-Foundation: contracts, domain models, provider boundaries, AI proposal schema, risk gate, execution modes, audit events, and observability. Live providers and broker adapters are intentionally not enabled by this foundation commit.
+Foundation plus the first real-data application boundary: contracts, domain models, provider boundaries, AI proposal schema, risk gate, execution modes, audit events, persistence adapter, Iran collector, server market-data gateway, and real-data chart integration. Live providers and broker adapters are intentionally not enabled for trading.
