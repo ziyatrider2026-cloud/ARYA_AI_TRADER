@@ -15,41 +15,78 @@ import {
   Maximize2,
   BarChart3,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { DataEnvelope } from "@/arya/core/data-envelope";
+import type { Candle, Timeframe } from "@/arya/core/types";
+import { toChartSeries } from "@/arya/core/chart-series";
+import { getMarketCandles } from "@/arya/server/market-data.functions";
 import { CandleChart } from "./CandleChart";
-import { generateSeries } from "@/lib/arya-data";
 import { IndicatorPanel } from "./IndicatorPanel";
-import { DataStatusBadge, MOCK_META } from "@/components/arya/DataStatusBadge";
+import { DataStatusBadge } from "@/components/arya/DataStatusBadge";
 
-const TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "D", "W", "M"];
+const TIMEFRAMES: Array<{ label: string; value: Timeframe }> = [
+  { label: "1m", value: "1m" },
+  { label: "5m", value: "5m" },
+  { label: "15m", value: "15m" },
+  { label: "1h", value: "1h" },
+  { label: "4h", value: "4h" },
+  { label: "D", value: "1D" },
+  { label: "W", value: "1W" },
+  { label: "M", value: "1M" },
+];
 const RANGES = ["1D", "5D", "1M", "3M", "6M", "YTD", "1Y", "5Y", "All"];
 const TOOLS = [Crosshair, TrendingUp, Minus, Ruler, TypeIcon, Pencil, Move3d, CircleDot, Magnet, Search];
 
-export function ChartPanel() {
-  const [tf, setTf] = useState("D");
+interface Props {
+  initialData: DataEnvelope<Candle[]>;
+}
+
+export function ChartPanel({ initialData }: Props) {
+  const [tf, setTf] = useState<Timeframe>("1D");
   const [range, setRange] = useState("6M");
-  const data = useMemo(() => generateSeries("شپنا", 4600, 120), []);
-  const last = data[data.length - 1]!;
-  const prev = data[data.length - 2]!;
-  const diff = last.close - prev.close;
-  const pct = (diff / prev.close) * 100;
+  const [marketData, setMarketData] = useState(initialData);
+  const [loading, setLoading] = useState(false);
+  const series = useMemo(() => toChartSeries(marketData.data), [marketData.data]);
+
+  useEffect(() => {
+    if (tf === "1D") return;
+    let active = true;
+    setLoading(true);
+    getMarketCandles({ data: { ticker: "شپنا", timeframe: tf, limit: 120 } })
+      .then((result) => {
+        if (active) setMarketData(result);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [tf]);
+
+  const last = series.at(-1);
+  const prev = series.at(-2);
+  const diff = last && prev ? last.close - prev.close : 0;
+  const pct = last && prev && prev.close !== 0 ? (diff / prev.close) * 100 : 0;
 
   return (
     <section className="panel flex min-w-0 flex-1 flex-col">
       <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <h2 className="flex items-center gap-2 text-[13px] font-semibold text-muted-foreground">تحلیل تکنیکال <DataStatusBadge meta={MOCK_META} /></h2>
+        <h2 className="flex items-center gap-2 text-[13px] font-semibold text-muted-foreground">
+          تحلیل تکنیکال <DataStatusBadge meta={marketData.meta} />
+        </h2>
       </div>
 
       <div className="flex items-center gap-1 border-b border-border px-3 py-1.5">
-        {TIMEFRAMES.map((t) => (
+        {TIMEFRAMES.map((item) => (
           <button
-            key={t}
-            onClick={() => setTf(t)}
+            key={item.value}
+            onClick={() => setTf(item.value)}
             className={`num rounded px-2 py-1 text-[11px] transition-colors ${
-              tf === t ? "bg-surface-2 text-primary" : "text-muted-foreground hover:text-foreground"
+              tf === item.value ? "bg-surface-2 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t}
+            {item.label}
           </button>
         ))}
         <span className="mx-2 h-4 w-px bg-border" />
@@ -77,20 +114,28 @@ export function ChartPanel() {
 
         <div className="flex min-w-0 flex-1 flex-col px-3 pb-2 pt-2">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px]">
-            <span className="font-semibold">شپنا · 1D</span>
+            <span className="font-semibold">شپنا · {TIMEFRAMES.find((item) => item.value === tf)?.label}</span>
             <span className="text-muted-foreground">بورس</span>
-            <span className="num text-muted-foreground">
-              O{last.open} H{last.high} L{last.low} C{last.close}
-            </span>
-            <span className={`num ${diff >= 0 ? "text-bull" : "text-bear"}`}>
-              {diff >= 0 ? "+" : ""}
-              {diff.toFixed(0)} ({pct.toFixed(2)}%)
-            </span>
-            <span className="num text-muted-foreground">Volume {last.volume}M</span>
+            {last ? (
+              <>
+                <span className="num text-muted-foreground">O{last.open} H{last.high} L{last.low} C{last.close}</span>
+                <span className={`num ${diff >= 0 ? "text-bull" : "text-bear"}`}>
+                  {diff >= 0 ? "+" : ""}
+                  {diff.toFixed(0)} ({pct.toFixed(2)}%)
+                </span>
+                <span className="num text-muted-foreground">Volume {last.volume}</span>
+              </>
+            ) : null}
           </div>
 
           <div className="mt-1 min-h-0 flex-1">
-            <CandleChart data={data} />
+            {series.length > 0 ? (
+              <CandleChart data={series} />
+            ) : (
+              <div className="flex h-full min-h-[300px] items-center justify-center text-center text-xs text-muted-foreground">
+                {loading ? "در حال دریافت داده بازار…" : marketData.meta.reason ?? "داده‌ای برای نمایش وجود ندارد."}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -108,14 +153,12 @@ export function ChartPanel() {
           </button>
         ))}
         <div className="mr-auto flex items-center gap-2 num text-[11px] text-muted-foreground">
-          <span>10:30:45 (UTC+3:30)</span>
-          <span>log</span>
-          <span>auto</span>
+          <span>{loading ? "loading…" : "server data"}</span>
+          <span>{marketData.meta.providerId}</span>
         </div>
       </div>
 
       <IndicatorPanel />
-
     </section>
   );
 }
