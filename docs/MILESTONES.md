@@ -18,8 +18,10 @@ Status: in progress
 - [x] Gap/duplicate/incomplete-series checks
 - [x] Provider timeout/retry boundary
 - [x] Iran relay provider contract
+- [x] Canonical Iran collector composition layer
 - [ ] Production Iran collector/relay with Iranian network placement
-- [ ] Direct Codal disclosure adapter after current contract verification
+- [ ] Verified Codal disclosure adapter
+- [ ] Verified observer/message adapter
 - [ ] Historical cache
 
 ## M3 — Persistence and audit
