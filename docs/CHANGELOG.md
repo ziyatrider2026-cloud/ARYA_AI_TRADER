@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-04 — Server market gateway and real chart data
+
+### Added
+- Server-only `readMarketCandles` gateway with typed `getMarketCandles` TanStack Start server function.
+- Real-first market retrieval with persisted historical fallback explicitly marked `STALE`.
+- Configurable `IRAN_RELAY_BASE_URL` and `ARYA_DEFAULT_IRAN_TICKER` environment settings.
+- Canonical candle-to-chart presentation adapter with MA20, MA50 and RSI calculations.
+
+### Changed
+- `/chart` now loads its initial daily candles through the server data boundary.
+- Chart timeframe changes use the same server function instead of `generateSeries` synthetic data.
+- Unsupported/unavailable timeframes display an explicit data-unavailable state rather than mock candles.
+
+### Safety
+- Client code never imports the Supabase service-role persistence implementation or calls TSETMC upstreams directly.
+- Cached candles are never labeled `LIVE`.
+- No mock/synthetic fallback was added to the real market chart.
+
 ## 2026-09-04 — Iran collector composition layer
 
 ### Added
