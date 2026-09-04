@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-04 — Iran collector composition layer
+
+### Added
+- Canonical `IranMarketCollector` that composes market-price providers with optional Codal/observer disclosure streams.
+- Explicit `IranCollectRequest` and `IranDisclosureProvider` contracts.
+- Graceful partial degradation: valid market prices remain `LIVE` when an optional disclosure source is unavailable, with provenance and degradation reason preserved.
+- Collector tests for partial disclosure failure and total market-provider failure.
+
+### Safety
+- No browser component calls TSETMC, TSE Web Gateway or Codal directly.
+- The collector is read-only and has no broker/order capability.
+- Unavailable upstreams are never replaced with synthetic prices.
+
 ## 2026-09-04 — Durable persistence and multi-symbol portfolio replay
 
 ### Added
