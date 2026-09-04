@@ -24,13 +24,16 @@ Status: in progress
 
 ## M3 — Persistence and audit
 Status: in progress
-- [ ] Database schema
-- [ ] Market-data storage
-- [ ] Analysis snapshots
-- [ ] Proposals/orders/executions
+- [x] Database schema
+- [x] Market-data storage contract
+- [x] Supabase/PostgREST server-side repository adapter
+- [x] Analysis snapshots repository path
+- [x] Proposals repository path
 - [x] Append-only audit-store contract
 - [x] Decision-to-audit pipeline boundary
-- [ ] Durable database implementation
+- [ ] Authentication/RLS policies for application read paths
+- [ ] Durable database deployment and migration verification
+- [ ] Optional Neon/PostgreSQL adapter
 
 ## M4 — AI decision service
 Status: in progress
@@ -51,7 +54,7 @@ Status: in progress
 - [x] Replayable next-bar backtest
 - [x] Equity and drawdown metrics
 - [x] Stop-loss/take-profit event simulation
-- [ ] Multi-symbol portfolio replay
+- [x] Multi-symbol portfolio replay
 - [ ] Full fee/tax/market-rule profiles for Iran
 
 ## M6 — Portfolio and monitoring
