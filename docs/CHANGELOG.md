@@ -1,25 +1,25 @@
 # Changelog
 
-## 2026-09-04 — Trading Core Foundation
+## 2026-09-04 — M2 Market Data Foundation
 
 ### Added
-- Shared AI-agent collaboration contract for Lovable and Claude.
-- Target architecture and decision records.
-- Typed domain contracts for market data, AI trade proposals, risk decisions and execution.
-- Deterministic risk policy with position sizing and safety checks.
-- Backtest/paper/live execution boundaries.
-- Append-only audit event model and structured system health model.
+- Binance public crypto market-data adapter for quotes and OHLCV candles.
+- Candle normalization from provider-native numeric payloads.
+- Duplicate, gap, OHLC relationship, and completeness checks.
+- Vitest scripts and initial data-quality tests.
+- Core candle/type contracts reconciled with the existing indicator/provider engine.
 
 ### Safety
-- Live execution is disabled by default.
-- No secrets or credentials are committed.
-- AI output cannot directly invoke an execution adapter.
+- Binance adapter uses public market-data endpoints only; no trading credentials are required.
+- Provider failures return explicit `UNAVAILABLE` envelopes instead of leaking exceptions to the UI.
+- Real market data remains provenance-tagged and is never converted into demo data.
+- Live order execution remains disabled.
 
 ### Not yet enabled
-- Real-time TSETMC/crypto provider implementation.
-- Broker/exchange credentials and live order submission.
-- Persistent database implementation.
-- Production LLM gateway wiring.
+- Verified production TSETMC adapter.
+- Historical persistence/cache.
+- Production LLM gateway.
+- Broker/exchange order submission.
 
 ### Handoff
-Lovable and Claude should read `AGENTS.md`, `docs/ARCHITECTURE.md` and `docs/DECISIONS.md` before modifying these contracts.
+Lovable and Claude should read `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` and this changelog before modifying these contracts.
